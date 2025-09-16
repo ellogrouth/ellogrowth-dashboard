@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
@@ -62,10 +63,15 @@ export function AppSidebar() {
       <SidebarContent className="px-4 py-6">
         <div className="mb-8">
           <div className="flex items-center gap-2 px-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
-            </div>
-            <span className="font-semibold text-lg">ElloGrowth</span>
+            <Link href="/">
+              <Image
+                src="ellogrowth_logo.svg"
+                alt="ElloGrowth Logo"
+                width={400}
+                height={100}
+  
+              />
+            </Link>
           </div>
         </div>
 
