@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 
@@ -31,13 +31,13 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased">
         <SidebarProvider>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <div className="flex-1 flex flex-col">
-              <DashboardHeader />
-              <main className="flex-1 p-6 bg-gray-50">{children}</main>
-            </div>
-          </div>
+          <AppSidebar />
+          <SidebarInset>
+            <DashboardHeader />
+            <main className="flex-1 p-6 bg-gray-50 min-h-screen">
+              {children}
+            </main>
+          </SidebarInset>
         </SidebarProvider>
       </body>
     </html>

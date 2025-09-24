@@ -29,7 +29,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -64,7 +64,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.145 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -121,5 +121,87 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile Sidebar Styles */
+@layer components {
+  /* Force white background for sidebar - more aggressive */
+  [data-sidebar="sidebar"],
+  [data-sidebar="sidebar"] *,
+  [data-slot="sidebar-inner"],
+  [data-slot="sidebar-inner"] * {
+    background-color: white !important;
+  }
+  
+  /* Force white for all sidebar elements */
+  .group\/sidebar-wrapper [data-sidebar="sidebar"],
+  .group\/sidebar-wrapper [data-slot="sidebar-inner"] {
+    background-color: white !important;
+  }
+  
+  /* Active menu item background - more specific */
+  [data-sidebar="menu-button"][data-active="true"],
+  [data-sidebar="menu-button"][data-active="true"] *,
+  a[data-active="true"],
+  a[data-active="true"] * {
+    background-color: rgb(243 232 255) !important;
+  }
+  
+  /* Force purple background for active items */
+  .bg-purple-100,
+  .bg-purple-100 * {
+    background-color: rgb(243 232 255) !important;
+  }
+  
+  /* Override any white backgrounds in active menu items */
+  [data-sidebar="menu-button"]:has([data-active="true"]),
+  [data-sidebar="menu-button"]:has([data-active="true"]) * {
+    background-color: rgb(243 232 255) !important;
+  }
+  
+  /* Sidebar mobile responsiveness */
+  @media (max-width: 768px) {
+    [data-sidebar="sidebar"] {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      z-index: 50 !important;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      background-color: white !important;
+    }
+    
+    [data-sidebar="sidebar"][data-state="open"] {
+      transform: translateX(0);
+    }
+    
+    /* Overlay for mobile */
+    [data-sidebar="sidebar"]::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    [data-sidebar="sidebar"][data-state="open"]::before {
+      opacity: 1;
+    }
+  }
+  
+  /* Desktop sidebar styles */
+  @media (min-width: 769px) {
+    [data-sidebar="sidebar"] {
+      position: relative !important;
+      transform: none !important;
+      background-color: white !important;
+    }
   }
 }
