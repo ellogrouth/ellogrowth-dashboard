@@ -65,18 +65,11 @@ const mockAgents = [
     conversions: 67,
     specialization: ["Onboarding", "Tutorial", "Setup"],
     lastActive: "2024-01-14T16:20:00",
-    model: "GPT-4",
     temperature: 0.5,
     maxTokens: 1200,
   },
 ]
 
-const availableModels = [
-  { value: "gpt-4", label: "GPT-4" },
-  { value: "gpt-3.5", label: "GPT-3.5 Turbo" },
-  { value: "claude-3", label: "Claude 3" },
-  { value: "gemini-pro", label: "Gemini Pro" },
-]
 
 const specializationOptions = [
   "Vendas",
@@ -99,10 +92,9 @@ export function AgentsContent() {
   const [newAgent, setNewAgent] = useState({
     name: "",
     description: "",
-    model: "gpt-3.5",
     temperature: 0.7,
-    maxTokens: 1000,
     specialization: [] as string[],
+    productDataFile: null as File | null,
   })
 
   const filteredAgents = agents.filter((agent) => {
@@ -124,21 +116,25 @@ export function AgentsContent() {
   const handleCreateAgent = () => {
     const agent = {
       id: Date.now().toString(),
-      ...newAgent,
+      name: newAgent.name,
+      description: newAgent.description,
+      temperature: newAgent.temperature,
+      specialization: newAgent.specialization,
       status: "inactive" as const,
       performance: 0,
       conversations: 0,
       conversions: 0,
       lastActive: new Date().toISOString(),
+      model: "gpt-3.5", // Modelo padrão
+      maxTokens: 1000, // Valor padrão
     }
     setAgents([agent, ...agents])
     setNewAgent({
       name: "",
       description: "",
-      model: "gpt-3.5",
       temperature: 0.7,
-      maxTokens: 1000,
       specialization: [],
+      productDataFile: null,
     })
     setIsCreateDialogOpen(false)
   }
@@ -163,31 +159,14 @@ export function AgentsContent() {
               <DialogTitle>Criar Novo Agente I.A</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Nome do Agente</label>
-                  <Input
-                    value={newAgent.name}
-                    onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
-                    placeholder="Ex: Assistente de Vendas"
-                    className="w-full"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Modelo I.A</label>
-                  <Select value={newAgent.model} onValueChange={(value) => setNewAgent({ ...newAgent, model: value })}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableModels.map((model) => (
-                        <SelectItem key={model.value} value={model.value}>
-                          {model.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Nome do Agente</label>
+                <Input
+                  value={newAgent.name}
+                  onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
+                  placeholder="Ex: Assistente de Vendas"
+                  className="w-full"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Descrição</label>
@@ -198,32 +177,46 @@ export function AgentsContent() {
                   className="min-h-20 w-full"
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Temperature: {newAgent.temperature}</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={newAgent.temperature}
-                    onChange={(e) => setNewAgent({ ...newAgent, temperature: Number.parseFloat(e.target.value) })}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Conservador</span>
-                    <span>Criativo</span>
-                  </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Temperature: {newAgent.temperature}</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={newAgent.temperature}
+                  onChange={(e) => setNewAgent({ ...newAgent, temperature: Number.parseFloat(e.target.value) })}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Conservador</span>
+                  <span>Criativo</span>
                 </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Max Tokens</label>
-                  <Input
-                    type="number"
-                    value={newAgent.maxTokens}
-                    onChange={(e) => setNewAgent({ ...newAgent, maxTokens: Number.parseInt(e.target.value) })}
-                    placeholder="1000"
-                    className="w-full"
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Dados de Produtos (Excel)</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setNewAgent({ ...newAgent, productDataFile: file });
+                    }}
+                    className="hidden"
+                    id="product-data-file"
                   />
+                  <label htmlFor="product-data-file" className="cursor-pointer">
+                    <div className="flex flex-col items-center">
+                      <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p className="text-sm text-gray-600 mb-1">
+                        {newAgent.productDataFile ? newAgent.productDataFile.name : "Clique para importar arquivo Excel"}
+                      </p>
+                      <p className="text-xs text-gray-500">Formatos aceitos: .xlsx, .xls</p>
+                    </div>
+                  </label>
                 </div>
               </div>
               <div>
@@ -359,7 +352,6 @@ export function AgentsContent() {
                       <Badge variant={agent.status === "active" ? "default" : "secondary"}>
                         {agent.status === "active" ? "Ativo" : "Inativo"}
                       </Badge>
-                      <Badge variant="outline">{agent.model.toUpperCase()}</Badge>
                     </div>
                   </div>
                 </div>
