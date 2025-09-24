@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useTemplateConfiguration } from "@/lib/hooks/use-template-configuration"
+import { templateService } from "@/lib/services/template-service"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Progress } from "@/components/ui/progress"
@@ -84,6 +86,7 @@ const specializationOptions = [
   "Setup",
 ]
 
+
 export function AgentsContent() {
   const [agents, setAgents] = useState(mockAgents)
   const [searchTerm, setSearchTerm] = useState("")
@@ -93,9 +96,23 @@ export function AgentsContent() {
     name: "",
     description: "",
     temperature: 0.7,
-    specialization: [] as string[],
+    specialization: "",
+    templateId: "",
     productDataFile: null as File | null,
   })
+
+  // Hook para gerenciar configuração de templates (Dependency Inversion Principle)
+  const {
+    templates,
+    selectedTemplate,
+    isConfigureDialogOpen,
+    selectedAgentId,
+    agentTemplate,
+    setSelectedTemplate,
+    openConfigureDialog,
+    closeConfigureDialog,
+    saveTemplateConfiguration,
+  } = useTemplateConfiguration()
 
   const filteredAgents = agents.filter((agent) => {
     const matchesSearch =
@@ -119,7 +136,7 @@ export function AgentsContent() {
       name: newAgent.name,
       description: newAgent.description,
       temperature: newAgent.temperature,
-      specialization: newAgent.specialization,
+      specialization: [newAgent.specialization], // Converte string para array para compatibilidade
       status: "inactive" as const,
       performance: 0,
       conversations: 0,
@@ -128,16 +145,24 @@ export function AgentsContent() {
       model: "gpt-3.5", // Modelo padrão
       maxTokens: 1000, // Valor padrão
     }
+    
+    // Configurar template se selecionado
+    if (newAgent.templateId) {
+      templateService.configureAgentTemplate(agent.id, newAgent.templateId)
+    }
+    
     setAgents([agent, ...agents])
     setNewAgent({
       name: "",
       description: "",
       temperature: 0.7,
-      specialization: [],
+      specialization: "",
+      templateId: "",
       productDataFile: null,
     })
     setIsCreateDialogOpen(false)
   }
+
 
   const activeAgents = agents.filter((a) => a.status === "active").length
   const totalConversations = agents.reduce((sum, agent) => sum + agent.conversations, 0)
@@ -220,24 +245,44 @@ export function AgentsContent() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Especializações</label>
-                <div className="flex flex-wrap gap-2">
-                  {specializationOptions.map((spec) => (
-                    <Button
-                      key={spec}
-                      variant={newAgent.specialization.includes(spec) ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        const updated = newAgent.specialization.includes(spec)
-                          ? newAgent.specialization.filter((s) => s !== spec)
-                          : [...newAgent.specialization, spec]
-                        setNewAgent({ ...newAgent, specialization: updated })
-                      }}
-                    >
-                      {spec}
-                    </Button>
-                  ))}
-                </div>
+                <label className="text-sm font-medium mb-2 block">Especialização</label>
+                <Select value={newAgent.specialization} onValueChange={(value) => setNewAgent({ ...newAgent, specialization: value })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione uma especialização" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {specializationOptions.map((spec) => (
+                      <SelectItem key={spec} value={spec}>
+                        {spec}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Template</label>
+                <Select value={newAgent.templateId} onValueChange={(value) => setNewAgent({ ...newAgent, templateId: value })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um template (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{template.name}</span>
+                          <span className="text-xs text-gray-500">{template.category} • {template.type}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {newAgent.templateId && (
+                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600">
+                      <strong>Preview:</strong> {templates.find(t => t.id === newAgent.templateId)?.content}
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-2">
                 <Button 
@@ -258,6 +303,71 @@ export function AgentsContent() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Modal de Configuração de Template */}
+        <Dialog open={isConfigureDialogOpen} onOpenChange={closeConfigureDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Configurar Template do Agente</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Selecionar Template</label>
+                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Escolha um template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{template.name}</span>
+                          <span className="text-xs text-gray-500">{template.category} • {template.type}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {selectedTemplate && (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium mb-2">Preview do Template</h4>
+                  <p className="text-sm text-gray-600">
+                    {templates.find(t => t.id === selectedTemplate)?.content}
+                  </p>
+                </div>
+              )}
+
+              {agentTemplate && (
+                <div className="border rounded-lg p-4 bg-blue-50">
+                  <h4 className="font-medium mb-2 text-blue-800">Template Atual</h4>
+                  <p className="text-sm text-blue-600">
+                    {agentTemplate.name} ({agentTemplate.category})
+                  </p>
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={closeConfigureDialog}
+                  className="w-full sm:w-auto"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={saveTemplateConfiguration}
+                  disabled={!selectedTemplate}
+                  className="w-full sm:w-auto"
+                >
+                  Salvar Configuração
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
       </div>
 
       {/* Stats Cards */}
@@ -362,9 +472,9 @@ export function AgentsContent() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openConfigureDialog(agent.id)}>
                       <Settings className="w-4 h-4 mr-2" />
-                      Configurar
+                      Configurar Template
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Brain className="w-4 h-4 mr-2" />
