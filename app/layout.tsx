@@ -34,8 +34,10 @@ export default function RootLayout({
           <AppSidebar />
           <SidebarInset>
             <DashboardHeader />
-            <main className="flex-1 p-6 bg-gray-50 min-h-screen">
-              {children}
+            <main className="flex-1 p-6 bg-gray-50 min-h-screen overflow-x-hidden">
+              <div className="max-w-full">
+                {children}
+              </div>
             </main>
           </SidebarInset>
         </SidebarProvider>

@@ -76,14 +76,14 @@ export function ChatsContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">Chats</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
             <Filter className="w-4 h-4 mr-2" />
-            Filtros
+            <span className="hidden sm:inline">Filtros</span>
           </Button>
-          <Button size="sm">Novo Chat</Button>
+          <Button size="sm" className="flex-1 sm:flex-none">Novo Chat</Button>
         </div>
       </div>
 

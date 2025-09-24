@@ -96,27 +96,28 @@ export function TemplatesContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">Templates</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Novo Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Criar Novo Template</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Nome do Template</label>
                   <Input
                     value={newTemplate.name}
                     onChange={(e) => setNewTemplate({ ...newTemplate, name: e.target.value })}
                     placeholder="Ex: Boas-vindas Cliente"
+                    className="w-full"
                   />
                 </div>
                 <div>
@@ -125,7 +126,7 @@ export function TemplatesContent() {
                     value={newTemplate.category}
                     onValueChange={(value) => setNewTemplate({ ...newTemplate, category: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
                     <SelectContent>
@@ -143,7 +144,7 @@ export function TemplatesContent() {
                   value={newTemplate.type}
                   onValueChange={(value) => setNewTemplate({ ...newTemplate, type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -159,16 +160,21 @@ export function TemplatesContent() {
                   value={newTemplate.content}
                   onChange={(e) => setNewTemplate({ ...newTemplate, content: e.target.value })}
                   placeholder="Digite o conteúdo do template... Use {nome} para personalização"
-                  className="min-h-32"
+                  className="min-h-32 w-full"
                 />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
                 <Button
                   onClick={handleCreateTemplate}
                   disabled={!newTemplate.name || !newTemplate.category || !newTemplate.content}
+                  className="w-full sm:w-auto"
                 >
                   Criar Template
                 </Button>
@@ -179,8 +185,8 @@ export function TemplatesContent() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Buscar templates..."
@@ -189,13 +195,14 @@ export function TemplatesContent() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(category)}
+              className="flex-1 sm:flex-none whitespace-nowrap"
             >
               {category}
             </Button>

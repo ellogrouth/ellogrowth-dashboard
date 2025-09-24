@@ -149,33 +149,34 @@ export function AgentsContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">Agentes I.A</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Novo Agente
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Criar Novo Agente I.A</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Nome do Agente</label>
                   <Input
                     value={newAgent.name}
                     onChange={(e) => setNewAgent({ ...newAgent, name: e.target.value })}
                     placeholder="Ex: Assistente de Vendas"
+                    className="w-full"
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-2 block">Modelo I.A</label>
                   <Select value={newAgent.model} onValueChange={(value) => setNewAgent({ ...newAgent, model: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -194,10 +195,10 @@ export function AgentsContent() {
                   value={newAgent.description}
                   onChange={(e) => setNewAgent({ ...newAgent, description: e.target.value })}
                   placeholder="Descreva a função e especialidade do agente..."
-                  className="min-h-20"
+                  className="min-h-20 w-full"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Temperature: {newAgent.temperature}</label>
                   <input
@@ -221,6 +222,7 @@ export function AgentsContent() {
                     value={newAgent.maxTokens}
                     onChange={(e) => setNewAgent({ ...newAgent, maxTokens: Number.parseInt(e.target.value) })}
                     placeholder="1000"
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -244,11 +246,19 @@ export function AgentsContent() {
                   ))}
                 </div>
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateAgent} disabled={!newAgent.name || !newAgent.description}>
+                <Button 
+                  onClick={handleCreateAgent} 
+                  disabled={!newAgent.name || !newAgent.description}
+                  className="w-full sm:w-auto"
+                >
                   Criar Agente
                 </Button>
               </div>
@@ -306,8 +316,8 @@ export function AgentsContent() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Buscar agentes..."
@@ -316,16 +326,18 @@ export function AgentsContent() {
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="active">Ativos</SelectItem>
-            <SelectItem value="inactive">Inativos</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="active">Ativos</SelectItem>
+              <SelectItem value="inactive">Inativos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Agents Grid */}
@@ -430,7 +442,6 @@ export function AgentsContent() {
                   <Switch
                     checked={agent.status === "active"}
                     onCheckedChange={() => toggleAgentStatus(agent.id)}
-                    size="sm"
                   />
                 </div>
               </div>

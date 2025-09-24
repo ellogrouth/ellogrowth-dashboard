@@ -111,27 +111,28 @@ export function CRMContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">CRM</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Novo Contato
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Adicionar Novo Contato</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Nome</label>
                   <Input
                     value={newContact.name}
                     onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
                     placeholder="Nome completo"
+                    className="w-full"
                   />
                 </div>
                 <div>
@@ -141,16 +142,18 @@ export function CRMContent() {
                     value={newContact.email}
                     onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
                     placeholder="email@exemplo.com"
+                    className="w-full"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Telefone</label>
                   <Input
                     value={newContact.phone}
                     onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
                     placeholder="(11) 99999-9999"
+                    className="w-full"
                   />
                 </div>
                 <div>
@@ -159,6 +162,7 @@ export function CRMContent() {
                     value={newContact.company}
                     onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
                     placeholder="Nome da empresa"
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -168,7 +172,7 @@ export function CRMContent() {
                   value={newContact.status}
                   onValueChange={(value) => setNewContact({ ...newContact, status: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -186,14 +190,22 @@ export function CRMContent() {
                   value={newContact.notes}
                   onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
                   placeholder="Observações sobre o contato..."
-                  className="min-h-24"
+                  className="min-h-24 w-full"
                 />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
-                <Button onClick={handleCreateContact} disabled={!newContact.name || !newContact.email}>
+                <Button 
+                  onClick={handleCreateContact} 
+                  disabled={!newContact.name || !newContact.email}
+                  className="w-full sm:w-auto"
+                >
                   Adicionar Contato
                 </Button>
               </div>
@@ -242,8 +254,8 @@ export function CRMContent() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 items-center">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Buscar contatos..."
@@ -252,23 +264,25 @@ export function CRMContent() {
             className="pl-10"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {statusOptions.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button variant="outline" size="sm">
-          <Filter className="w-4 h-4 mr-2" />
-          Mais Filtros
-        </Button>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {statusOptions.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+            <Filter className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Mais Filtros</span>
+          </Button>
+        </div>
       </div>
 
       {/* Contacts Table */}

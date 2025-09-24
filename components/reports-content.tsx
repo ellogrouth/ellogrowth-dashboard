@@ -47,11 +47,11 @@ export function ReportsContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">Relatórios</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-full sm:w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -61,19 +61,19 @@ export function ReportsContent() {
               <SelectItem value="1y">1 ano</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
             <Filter className="w-4 h-4 mr-2" />
-            Filtros
+            <span className="hidden sm:inline">Filtros</span>
           </Button>
-          <Button size="sm">
+          <Button size="sm" className="flex-1 sm:flex-none">
             <Download className="w-4 h-4 mr-2" />
-            Exportar
+            <span className="hidden sm:inline">Exportar</span>
           </Button>
         </div>
       </div>
 
       {/* Report Navigation */}
-      <div className="flex gap-2 border-b">
+      <div className="flex flex-wrap gap-2 border-b overflow-x-auto">
         {[
           { id: "overview", label: "Visão Geral" },
           { id: "sales", label: "Vendas" },
@@ -84,7 +84,7 @@ export function ReportsContent() {
             key={tab.id}
             variant={selectedReport === tab.id ? "default" : "ghost"}
             onClick={() => setSelectedReport(tab.id)}
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 whitespace-nowrap"
           >
             {tab.label}
           </Button>
